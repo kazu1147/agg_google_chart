@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body>
+    <div id="chart_div" style="width: 800px; height: 600px"></div>
+    <input id="update_btn" type="button" value="更新する">
+</body>
+<script>
+    // Visualization API with the 'corechart' package.
+    google.charts.load('current', {'packages':['line']});
+    google.charts.setOnLoadCallback(drawLineChart);
+
+    function drawLineChart() {
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: "/api/get/",
+        })/*通信成功*/
+        .done(function(data, textStatus, jqXHR){
+            var json= JSON.stringify(data);
+            json =  JSON.parse(json);
+            var data = new google.visualization.DataTable(json);
+            var options = {
+                title: '総販売個数の日付別集計',
+                hAxis: {title: '個数'},
+                vAxis: {title: '日付'},
+                legend: { position: 'bottom', textStyle: { color: '#555', fontSize: 14} }
+            };
+
+            var chart =new google.charts.Line(document.getElementById('chart_div'));
+            chart.draw(data, google.charts.Line.convertOptions(options));
+        })
+        .fail(function(jqXHR, textStatus, errorThrown){
+            alert("通信に失敗しました。ネットワーク環境を整えてください。")
+        });
+    }
+
+    $('#update_btn').on('click', function(){
+        drawLineChart()
+    })
+</script>
+</html>
+
+
+
